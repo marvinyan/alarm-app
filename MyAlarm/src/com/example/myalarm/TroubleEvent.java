@@ -19,20 +19,17 @@ public class TroubleEvent
 			R.drawable.troubleoff	};
 	
 	//Default Constructor
-	//Accepts the button representing any system troubles and message received by the server
-	public TroubleEvent (Button troubleButton, int responseCode, char [] message)
+	//Accepts the button representing any system troubles
+	public TroubleEvent (Button troubleButton)
 	{
 		troubleBtn = troubleButton;
-		code = responseCode;
-		TPIMessage = message;
-		determineCode (code);
 	}
 	
-	//Constructor - For debugging only
-	//Accepts the message received by the server
-	public TroubleEvent (int responseCode)
+	//Process message from server
+	public void processMessage (int responseCode, char [] message)
 	{
 		code = responseCode;
+		TPIMessage = message;
 		determineCode (code);
 	}
 	

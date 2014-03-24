@@ -3,5 +3,9 @@
 
     <string name="app_name">My Alarm</string>
     <string name="desc">Button Description</string>
-
+    <string name="appLog">My Alarm App Log\n</string>
+    <string name="ip">IP Address: </string>
+    <string name="password">Password: </string>
+    <string name="setup">SETUP</string>
+    
 </resources>

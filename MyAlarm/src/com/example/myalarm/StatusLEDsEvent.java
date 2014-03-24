@@ -18,19 +18,14 @@ public class StatusLEDsEvent
 	
 	
 	//Default Constructor
-	//Accepts the buttons that represent the general status of the system, the 3-digit code 
-	//inside the message received from the server and the message itself
-	public StatusLEDsEvent (Button [] statusButtons, int responseCode, char [] message)
+	//Accepts the buttons that represent the general status of the system
+	public StatusLEDsEvent (Button [] statusButtons)
 	{
 		statusLEDs = statusButtons;
-		code = responseCode;
-		TPIMessage = message;
-		processCode(code);
 	}
 	
-	//Constructor - For debugging only
-	//Accepts the code inside the message received by the server
-	public StatusLEDsEvent (int responseCode, char [] message)
+	//Process message from server
+	public void processMessage (int responseCode, char [] message)
 	{
 		code = responseCode;
 		TPIMessage = message;
@@ -75,6 +70,20 @@ public class StatusLEDsEvent
 			//Lock Symbol ON
 			statusLEDs[1].setBackgroundResource(statusLEDsImages[2]);
 			eventMessage = "Green OFF, Red ON";
+			break;
+		case '3':
+			//Check Mark ON
+			statusLEDs[0].setBackgroundResource(statusLEDsImages[0]);
+			//Lock Symbol ON
+			statusLEDs[1].setBackgroundResource(statusLEDsImages[2]);
+			eventMessage = "Green ON, Red ON";
+			break;
+		case '5':
+			//Check Mark ON
+			statusLEDs[0].setBackgroundResource(statusLEDsImages[0]);
+			//Lock Symbol OFF
+			statusLEDs[1].setBackgroundResource(statusLEDsImages[3]);
+			eventMessage = "Green ON, Red OFF";
 			break;
 		case 'A':
 			//Check Mark OFF

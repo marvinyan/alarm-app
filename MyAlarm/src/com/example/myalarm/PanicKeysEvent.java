@@ -20,19 +20,16 @@ public class PanicKeysEvent
 			R.drawable.policeoff	};
 	
 	//Default Constructor
-	//Accepts Quick Arm / Panic Buttons and message received by the server
+	//Accepts Quick Arm and Panic Buttons 
 	//Notice, panic buttons include "Arm Stay" and "Arm Away". So Fire and Police are
 	//panicButtons[2] and [3]
-	public PanicKeysEvent (Button [] panicButtons, int responseCode)
+	public PanicKeysEvent (Button [] panicButtons)
 	{
 		panicKeys = panicButtons;
-		code = responseCode;
-		determineCode (code);
 	}
 	
-	//Constructor - For debugging only
-	//Accepts the code inside the message received by the server
-	public PanicKeysEvent (int responseCode)
+	//Process message from server
+	public void processMessage (int responseCode)
 	{
 		code = responseCode;
 		determineCode (code);

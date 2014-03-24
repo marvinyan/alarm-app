@@ -26,26 +26,22 @@ public class SystemStatusEvent
 			R.drawable.entrydelay	};
 	
 	//Default Constructor
-	//Accepts the button that represents the status of the system, the 3-digit code inside the
-	//message received from the server and the message itself
-	public SystemStatusEvent (Button textDisplay, int responseCode, char [] message)
+	//Accepts the button that represents the status of the system
+	public SystemStatusEvent (Button textDisplay)
 	{
 		txtDisplay = textDisplay;
-		code = responseCode;
-		TPIMessage = message;
-		processCode (code);
 	}
 		
-	//Constructor - For debugging only
-	//Accepts the message received by the server and the 3-digit code
-	public SystemStatusEvent (int responseCode, char [] message)
+	//Process message from server
+	public void processMessage (int responseCode, char [] message)
 	{
 		code = responseCode;
 		TPIMessage = message;
 		processCode (code);
 	}
 	
-	
+	//Based on the 3-digit code received from the server, we are able to determine
+	//the state the system is in
 	public void processCode(int code)
 	{
 		switch(code)
@@ -76,50 +72,59 @@ public class SystemStatusEvent
 		}
 						
 	}
-			
+	
+	//When the system is ready to be armed
 	public void systemReady ()
 	{		
 		txtDisplay.setBackgroundResource(statusTextDisplay[0]);
 		eventMessage = ("System Is Ready To Arm");
 	}
-		
+
+	//When one of the zones is open. The system can not be armed at this point
 	public void systemNotReady ()
 	{
 		txtDisplay.setBackgroundResource(statusTextDisplay[1]);
 		eventMessage = ("System Not Ready");
 	}
 		
+	//System is Armed
 	public void systemArmed ()
 	{
 		armedMode = getArmedMode();
 		txtDisplay.setBackgroundResource(statusTextDisplay[2]);
 		eventMessage = ("System Armed In " + armedMode);
 	}
-		
+	
+	//When one of the zones was opened while the system was armed,
+	//or when one of the 2 panic buttons was activated (Fire and Police)
 	public void systemAlarmActive ()
 	{
 		txtDisplay.setBackgroundResource(statusTextDisplay[3]);
 		eventMessage = ("System Alarm is Active");
 	}
 		
+	//System disarmed, after entering the correct code
 	public void systemDisarmed ()
 	{
 		txtDisplay.setBackgroundResource(statusTextDisplay[4]);
 		eventMessage = ("System Has Been Disarmed");
 	}
 		
+	//Delay in progress while system is being armed
 	public void exitDelay ()
 	{
 		txtDisplay.setBackgroundResource(statusTextDisplay[5]);
 		eventMessage = ("Exit Delay in Progress");
 	}
 		
+	//When an Entry/Exit zones was opened while system was armed
 	public void entryDelay ()
 	{
 		txtDisplay.setBackgroundResource(statusTextDisplay[6]);
 		eventMessage = ("Entry Delay in Progress");
 	}
 		
+	//Specifies the way in which the System was armed
 	public String getArmedMode()
 	{
 		if (TPIMessage[4] == '0')

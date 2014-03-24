@@ -37,19 +37,14 @@ public class ZoneEvent
 			R.drawable.zone8closed	};
 	
 	
-	//Default Constructor accepting the array of buttons representing the zones list, 3-digit response code and
-	//the complete message that came out of the server
-	public ZoneEvent (Button [] zonesBtns, int responseCode, char [] message)
+	//Default Constructor accepting the array of buttons representing the zones list
+	public ZoneEvent (Button [] zonesBtns)
 	{
 		zonesButtons = zonesBtns;
-		code = responseCode;
-		TPIMessage = message;
-		determineCode (code, TPIMessage);
 	}
 	
-	//Constructor - For debugging only
-	//Accepts the message received by the server and first 3-digit code
-	public ZoneEvent(int responseCode, char [] message) 
+	//Process message from server
+	public void processMessage (int responseCode, char [] message) 
 	{
 		code = responseCode;
 		TPIMessage = message;
@@ -106,8 +101,13 @@ public class ZoneEvent
 	{
 		if (restOfMessage [4] == '0')
 		{
-			eventMessage = ("Zone #" + restOfMessage [6] + " Open");
-			changeZoneToOpen (getZoneNumber(restOfMessage[5]));
+			if (restOfMessage [5] != '9')
+			{
+				eventMessage = ("Zone #" + restOfMessage [5] + " Open");			
+				changeZoneToOpen (getZoneNumber(restOfMessage[5]));
+			}
+			else
+				eventMessage = "This zone is not available";
 		}
 		else
 			eventMessage = "This zone is not available";
@@ -119,8 +119,13 @@ public class ZoneEvent
 	{
 		if (restOfMessage [4] == '0')
 		{
-			eventMessage = ("Zone #" + restOfMessage [6] + " Closed");
-			changeZoneToClosed (getZoneNumber(restOfMessage[5]));
+			if (restOfMessage [5] != '9')
+			{
+				eventMessage = ("Zone #" + restOfMessage [5] + " Closed");
+				changeZoneToClosed (getZoneNumber(restOfMessage[5]));
+			}
+			else
+				eventMessage = "This zone is not available";
 		}
 		else
 			eventMessage = "This zone is not available";

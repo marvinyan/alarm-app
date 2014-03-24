@@ -13,17 +13,14 @@ public class AccessCodeEvent
 	private String eventMessage;
 		
 	//Default Constructor
-	//Accepts button that display the system status and message received by the server
-	public AccessCodeEvent (Button textDisplay, int responseCode)
+	//Accepts button that display the system status
+	public AccessCodeEvent (Button textDisplay)
 	{
 		txtDisplay = textDisplay;
-		code = responseCode;
-		processCode (code);
 	}
 	
-	//Constructor - For debugging only
-	//Accepts the code inside the message received by the server
-	public AccessCodeEvent (int responseCode)
+	//Process message from server
+	public void processMessage (int responseCode)
 	{
 		code = responseCode;
 		processCode (code);

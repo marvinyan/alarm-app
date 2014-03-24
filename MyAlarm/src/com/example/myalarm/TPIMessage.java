@@ -35,20 +35,32 @@ public class TPIMessage
 	
 	//Default Constructor
 	//Accepts all buttons on the UI and message received by the server
-	public TPIMessage(Button []statusButtons, Button [] zonesButtons, Button [] panicButtons, String TPIMessage) 
+	public TPIMessage(Button []statusButtons, Button [] zonesButtons, Button [] panicButtons) 
 	{
 		statusBtns = statusButtons;
 		zonesAndSystemBtns = zonesButtons;
 		armAndPanicBtns = panicButtons;
-		originalTPIMessage = TPIMessage.toCharArray();
-		code = getCode(originalTPIMessage);
-		processCode();
+		otherEvents = new OtherEvents ();
+		statusLEDsEvent = new StatusLEDsEvent (statusBtns);
+		zoneEvent = new ZoneEvent (zonesAndSystemBtns);
+		panicKeys = new PanicKeysEvent (armAndPanicBtns);
+		systemStatusEvent = new SystemStatusEvent (zonesAndSystemBtns[0]);
+		accessCodeEvent = new AccessCodeEvent (zonesAndSystemBtns[0]);
+		troubleEvent = new TroubleEvent (statusBtns [2]);
 	}
 	
 	//Constructor - For debugging only
 	//Accepts the message received by the server
 	public TPIMessage(String TPIMessage) 
 	{		
+		originalTPIMessage = TPIMessage.toCharArray();
+		code = getCode(originalTPIMessage);
+		processCode();
+	}
+	
+	//Process message from server
+	public void processMessage(String TPIMessage)
+	{
 		originalTPIMessage = TPIMessage.toCharArray();
 		code = getCode(originalTPIMessage);
 		processCode();
@@ -70,49 +82,49 @@ public class TPIMessage
 		//Command acknowledge and Login messages
 		if (code >= 500 && code <= 505)
 		{
-			otherEvents = new OtherEvents (code, originalTPIMessage);
+			otherEvents.processMessage (code, originalTPIMessage);
 			eventMessage = otherEvents.getEventMessage();
 		}
 		else
 			//System Status LEDs
 			if (code == 510)
 			{
-				statusLEDsEvent = new StatusLEDsEvent (statusBtns, code, originalTPIMessage);
+				statusLEDsEvent.processMessage (code, originalTPIMessage);
 				eventMessage = statusLEDsEvent.getEventMessage();
 			}
 			else
 				//Zones related events (Opening, Closing, Alarm and Restored)
 				if (code >= 600 && code <= 620)
 				{				
-					zoneEvent = new ZoneEvent (zonesAndSystemBtns, code, originalTPIMessage);
+					zoneEvent.processMessage (code, originalTPIMessage);
 					eventMessage = zoneEvent.getEventMessage();
 				}
 				else
 					//Arming System and using panic buttons
 					if (code >= 621 && code <= 626)
 					{
-						panicKeys = new PanicKeysEvent (armAndPanicBtns, code);
+						panicKeys.processMessage (code);
 						eventMessage = panicKeys.getEventMessage();
 					}
 					else
 						//System Status text display
 						if (code >= 650 && code <= 657)
 						{
-							systemStatusEvent = new SystemStatusEvent (zonesAndSystemBtns[0], code, originalTPIMessage);
+							systemStatusEvent.processMessage (code, originalTPIMessage);
 							eventMessage = systemStatusEvent.getEventMessage();
 						}
 						else
 							//Invalid access code being detected
 							if (code == 670)
 							{
-								accessCodeEvent = new AccessCodeEvent (zonesAndSystemBtns[0], code);
+								accessCodeEvent.processMessage (code);
 								eventMessage = accessCodeEvent.getEventMessage();
 							}
 							else
 								//General system trouble detected (Power Lost and Low System Battery)
 								if (code >= 840 && code <= 841)
 								{
-									troubleEvent = new TroubleEvent (statusBtns [2], code, originalTPIMessage);
+									troubleEvent.processMessage (code, originalTPIMessage);
 									eventMessage = troubleEvent.getEventMessage();
 								}
 								else

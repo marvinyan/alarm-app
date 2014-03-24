@@ -126,13 +126,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		setupButton.setOnClickListener(this);
 		
 		//Open Socket in background thread
-		openSocketTask = new OpenSocketTask();		
+		openSocketTask = new OpenSocketTask();	
+		loadSavedPreferences();
 		openSocketTask.execute();
 		
-		// Load saved IP and pw
-		serverIP = "";
-		serverPassword = "";
-		loadSavedPreferences();
+		//Process message from server
+		tpiMsg = new TPIMessage (statusButtons, otherStatusButtons, sideButtons);
 		
 		//Commands for Key 1, Key 2, Key 3 and Key 4
 		listKeypadCommands = new String [] {"0700C7", "0701C8", "0702C9", "0703CA", "0704CB",
@@ -231,7 +230,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     					{
     						publishProgress("Could not access input stream.\n" +
     								"Another user may be using the device.\n" +
-    								"Retrying in 5 seconds.\n");
+    								"Retrying in 5 seconds.");
     				        Thread.sleep(5000);   
     						selfRestart();
     				    } 
@@ -271,21 +270,33 @@ public class MainActivity extends Activity implements View.OnClickListener {
     		    		
 			return null;
 		}
-    	
     	protected void onProgressUpdate(String... response) 
     	{
     		//Check if response[0] is a message from the server
     		if (response[0].matches("[0-9].*"))
             {			
     			updateLog("Server>> " + response[0] + ". ");
-    			tpiMsg = new TPIMessage (statusButtons, otherStatusButtons, sideButtons, response [0]);
+    			tpiMsg.processMessage(response[0]);
     			updateLog(tpiMsg.getEventMessage() + "\n");
     			if (tpiMsg.getEventMessage() == "Login Successful")
-					Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
+    			{
+    				Toast.makeText(getApplicationContext(), "Login Succesful. Loading System Status",
+    						Toast.LENGTH_LONG).show();
+    				//Request System Status, after login process is completed
+    				out.println("00191\r");
+    				out.flush();
+    				
+    			}
+    			else
+    				if (tpiMsg.getEventMessage() == "Login Failed")
+    					Toast.makeText(getApplicationContext(), "Login Failed. Check Your Password",
+    							Toast.LENGTH_LONG).show();
+    			
             }
             else
     			updateLog(response[0] + "\n");
     	}
+    	
     	
     	public void selfRestart() 
 		{
@@ -479,13 +490,22 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	// Determines the checksum of a given string and returns it
 	private String getChecksum(String s) 
 	{
+		char [] checkSumCharArray;
 		int decSum = 0;
 		for (int i = 0; i < s.length(); i++)
 		{
 			decSum += (int)s.charAt(i);
 		}
 		String hexSum = Integer.toHexString(decSum);
-		return hexSum.substring(hexSum.length()-2, hexSum.length());
+		checkSumCharArray = (hexSum.substring(hexSum.length()-2, hexSum.length())).toCharArray();
+		//If checksum contains a letter, that letter must be Upper Case
+		for (int i=0; i<2; i++)
+		{
+			if(Character.isLetter(checkSumCharArray[i]) && Character.isLowerCase(checkSumCharArray[i])){
+				checkSumCharArray[i] = Character.toUpperCase(checkSumCharArray[i]);
+			}
+		}
+		return String.valueOf(checkSumCharArray);
 	}
 }
 

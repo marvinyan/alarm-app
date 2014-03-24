@@ -120,7 +120,6 @@ int color abc_search_url_text_holo 0x7f070003
 int color abc_search_url_text_normal 0x7f070000
 int color abc_search_url_text_pressed 0x7f070002
 int color abc_search_url_text_selected 0x7f070001
-int dimen MyDimensions 0x7f080013
 int dimen abc_action_bar_default_height 0x7f080002
 int dimen abc_action_bar_icon_vertical_padding 0x7f080003
 int dimen abc_action_bar_progress_bar_size 0x7f08000a
@@ -309,7 +308,7 @@ int id dialog 0x7f05000e
 int id disableHome 0x7f050008
 int id dropdown 0x7f05000f
 int id editTextDialogUserInput1 0x7f05005e
-int id editTextDialogUserInput2 0x7f05005f
+int id editTextDialogUserInput2 0x7f050060
 int id edit_query 0x7f050030
 int id end 0x7f050013
 int id expand_activities_button 0x7f050026
@@ -365,6 +364,7 @@ int id submit_area 0x7f050039
 int id tabMode 0x7f050002
 int id textDisplay 0x7f05004a
 int id textView1 0x7f05005d
+int id textView2 0x7f05005f
 int id title 0x7f05002b
 int id top_action_bar 0x7f050020
 int id trouble 0x7f05003e
@@ -420,8 +420,12 @@ int string abc_searchview_description_submit 0x7f0a0007
 int string abc_searchview_description_voice 0x7f0a0008
 int string abc_shareactionprovider_share_with 0x7f0a000c
 int string abc_shareactionprovider_share_with_application 0x7f0a000b
+int string appLog 0x7f0a000f
 int string app_name 0x7f0a000d
 int string desc 0x7f0a000e
+int string ip 0x7f0a0010
+int string password 0x7f0a0011
+int string setup 0x7f0a0012
 int style AppBaseTheme 0x7f0b0083
 int style AppTheme 0x7f0b0084
 int style TextAppearance_AppCompat_Base_CompactMenu_Dialog 0x7f0b0063

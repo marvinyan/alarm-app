@@ -311,10 +311,7 @@
 	        android:id="@+id/log"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_alignParentLeft="true"
-	        android:layout_toRightOf="@id/armStay"
-	        android:text="My Alarm App Log...\n"
-	        android:layout_gravity="bottom" />
+	        android:text="@string/appLog"/>
     </ScrollView>
     
     <Button
@@ -323,7 +320,7 @@
         android:layout_width="wrap_content"
         android:layout_marginLeft="450dp"
         android:layout_marginTop="10dp"
-        android:text="SETUP"/>"
+        android:text="@string/setup"/>
     
 
 </RelativeLayout>

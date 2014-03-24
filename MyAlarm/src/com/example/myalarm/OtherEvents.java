@@ -11,9 +11,14 @@ public class OtherEvents
 	//Message from the server in a readable format
 	private String eventMessage;
 	
-	//Constructor - For debugging only
-	//Accepts the message received by the server and first 3-digit code
-	public OtherEvents (int responseCode, char [] message)
+	//Default Constructor - No parameters needed
+	public OtherEvents ()
+	{
+		
+	}
+	
+	//Process message from server
+	public void processMessage(int responseCode, char [] message)
 	{
 		code = responseCode;
 		TPIMessage = message;
@@ -59,7 +64,7 @@ public class OtherEvents
 			if (TPIMessage [3] == '3')
 				eventMessage = "Password Request";
 		else
-			eventMessage = "Login Failed, Check password";
+			eventMessage = "Login Failed";
 	}
 		
 	//Returns a String containing the event in a readable format
