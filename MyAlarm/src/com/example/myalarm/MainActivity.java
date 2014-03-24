@@ -496,16 +496,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		{
 			decSum += (int)s.charAt(i);
 		}
-		String hexSum = Integer.toHexString(decSum);
-		checkSumCharArray = (hexSum.substring(hexSum.length()-2, hexSum.length())).toCharArray();
-		//If checksum contains a letter, that letter must be Upper Case
-		for (int i=0; i<2; i++)
-		{
-			if(Character.isLetter(checkSumCharArray[i]) && Character.isLowerCase(checkSumCharArray[i])){
-				checkSumCharArray[i] = Character.toUpperCase(checkSumCharArray[i]);
-			}
-		}
-		return String.valueOf(checkSumCharArray);
+		//If checksum contains a letter, that letter must be upper case
+		String hexSum = Integer.toHexString(decSum).toUpperCase();
+		return hexSum.substring(hexSum.length() - 2, hexSum.length());
 	}
 }
 
