@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Locale;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -490,14 +491,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	// Determines the checksum of a given string and returns it
 	private String getChecksum(String s) 
 	{
-		char [] checkSumCharArray;
 		int decSum = 0;
 		for (int i = 0; i < s.length(); i++)
 		{
 			decSum += (int)s.charAt(i);
 		}
-		//If checksum contains a letter, that letter must be upper case
-		String hexSum = Integer.toHexString(decSum).toUpperCase();
+		// If checksum contains a letter, that letter must be upper case
+		// Checksums with more than 2 chars are truncated
+		//
+		// TODO: verify checksum process with international letters?
+		// http://mattryall.net/blog/2009/02/the-infamous-turkish-locale-bug
+		String hexSum = Integer.toHexString(decSum).toUpperCase(Locale.ENGLISH);
 		return hexSum.substring(hexSum.length() - 2, hexSum.length());
 	}
 }
