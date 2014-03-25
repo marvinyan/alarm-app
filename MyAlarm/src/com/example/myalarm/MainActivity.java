@@ -19,12 +19,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Toast;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -64,6 +64,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	//Message received from the server
 	private TPIMessage tpiMsg;
 	
+	private boolean appInForeground;
+	
+	//Debug
+	private String tag;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -72,10 +76,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); 
         
-        //Force application to run in Landscape mode only
-      	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        tag = "Testing";
+        Log.d(tag, "in the onCreate Method");
+        
+        appInForeground = true;
         
         //Temporary Log, for debugging 
       	sv = (ScrollView)findViewById(R.id.scroll);
@@ -126,10 +132,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		setupButton = (Button)findViewById(R.id.setup);
 		setupButton.setOnClickListener(this);
 		
-		//Open Socket in background thread
-		openSocketTask = new OpenSocketTask();	
-		loadSavedPreferences();
-		openSocketTask.execute();
+		//Open Socket in background thread, loading saved IP address and server password
+		openSocketTask = new OpenSocketTask();			
+    	loadSavedPreferences();
+        openSocketTask.execute();
+		Log.d(tag, "Task starts - onCreate");
 		
 		//Process message from server
 		tpiMsg = new TPIMessage (statusButtons, otherStatusButtons, sideButtons);
@@ -137,13 +144,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		//Commands for Key 1, Key 2, Key 3 and Key 4
 		listKeypadCommands = new String [] {"0700C7", "0701C8", "0702C9", "0703CA", "0704CB",
 				"0705CC", "0706CD", "0707CE", "0708CF", "0709D0"};
-		//Commands for Arm Stay, Arm Away, Fire and Police Butttons
+		//Commands for Arm Stay, Arm Away, Fire and Police Buttons
 		listSideBtnsCommands = new String [] {"0311C5", "0301C4", "0601C7", "0603C9"};
 	   
     }
     
     public void onClick(View v)
-    {		
+    {	
     	switch (v.getId())
 		{
 		case R.id.key0:
@@ -298,13 +305,117 @@ public class MainActivity extends Activity implements View.OnClickListener {
     			updateLog(response[0] + "\n");
     	}
     	
-    	
+    	//selfRestart code will only execute if the application is in the foreground
+    	//preventing self connections after the onPause, onStop or onDestroy methods have been
+    	//called
     	public void selfRestart() 
 		{
-			publishProgress("Restarting task.");
+    		if (appInForeground)
+    		{	
+    			publishProgress("Restarting task.");    		
+    			openSocketTask.cancel(true);
+    			try 
+    			{
+    				socket.close();
+    			} 
+    			catch (IOException e) 
+    			{					
+    				e.printStackTrace();
+    			}
+    			openSocketTask = new OpenSocketTask();
+    			loadSavedPreferences();
+    			openSocketTask.execute();
+    			Log.d(tag, "Task starts - selfStart");	    	
+    		}
+		}
+    }
+    
+    //When the application is restarted, the task running in the background
+    //will start again
+    @Override
+    protected void onRestart()
+    {
+    	super.onRestart();
+    	appInForeground = true;
+    	//Restart task in the background if the task was previously terminated
+    	if (openSocketTask.getStatus() == AsyncTask.Status.FINISHED)
+    	{
+    		try {
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		openSocketTask = new OpenSocketTask();
+    		loadSavedPreferences();
+        	openSocketTask.execute();
+        	Log.d(tag, "Task starts - onRestart");
+    	}
+    	
+    }
+    
+    //When the application starts a second time, the task running in the background
+    //will start again
+    @Override
+    protected void onStart()
+    {
+    	super.onStart();
+    	appInForeground = true;
+    	//Restart task in the background upon application restart
+    	if (openSocketTask.getStatus() == AsyncTask.Status.FINISHED)
+    	{
+    		try {
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		openSocketTask = new OpenSocketTask();
+    		loadSavedPreferences();
+        	openSocketTask.execute();
+        	Log.d(tag, "Task starts - onStart");
+    	}
+    	
+    }
+    
+    //When the application is resumed, the task running in the background
+    //will start again
+    @Override
+    protected void onResume()
+    {
+    	super.onResume();
+    	appInForeground = true;
+    	//Restart task in the background upon application restart
+    	if (openSocketTask.getStatus() == AsyncTask.Status.FINISHED)
+    	{
+    		try {
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		openSocketTask = new OpenSocketTask();
+    		loadSavedPreferences();
+        	openSocketTask.execute();
+        	Log.d(tag, "Task starts - onResume");
+    	}
+    	
+    }
+    
+    //When application is partially visible, the socket if connected will close
+    //and the task running in the background will be terminated if running
+    @Override
+    protected void onPause()
+	{
+		super.onPause();
+		appInForeground = false;
+		if (socket.isConnected())
+		{
 			try 
 			{
+				//Closing connection to socket
 				socket.close();
+				Log.d(tag, "Socket Closed - onPause");			
 			} 
 			catch(IOException e) 
 			{
@@ -314,38 +425,79 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			{
 				e.printStackTrace();
 			}
-			openSocketTask = new OpenSocketTask();
-			openSocketTask.execute();
 		}
-    }
+		//Terminating task running in the background thread
+		if (openSocketTask.getStatus() == AsyncTask.Status.RUNNING || 
+				openSocketTask.getStatus() == AsyncTask.Status.PENDING)
+		{
+			openSocketTask.cancel(true);
+			Log.d(tag, "Task killed - onPause");
+		}
+	}
     
-    @Override
-    protected void onRestart()
-    {
-    	super.onRestart();
-    	//Restart task in the background upon application restart
-    	openSocketTask = new OpenSocketTask(); 			
-    	openSocketTask.execute();
-    }
-    
+    //When application is not visible, the socket if connected will close
+    //and the task running in the background will be terminated if running
     @Override
     protected void onStop()
 	{
 		super.onStop();
-		try 
+		appInForeground = false;
+		if (socket.isConnected())
 		{
-			//Closing connection to socket
-			socket.close();
-			//Terminating task running in the background thread
-			openSocketTask.cancel(true);
-		} 
-		catch(IOException e) 
-		{
-			e.printStackTrace();
+			try 
+			{
+				//Closing connection to socket
+				socket.close();
+				Log.d(tag, "Socket Closed - onStop");
+			} 
+			catch(IOException e) 
+			{
+				e.printStackTrace();
+			}
+			catch(NullPointerException e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch(NullPointerException e)
+		//Terminating task running in the background thread
+		if (openSocketTask.getStatus() == AsyncTask.Status.RUNNING || 
+				openSocketTask.getStatus() == AsyncTask.Status.PENDING)
 		{
-			e.printStackTrace();
+			openSocketTask.cancel(true);
+			Log.d(tag, "Task killed - onStop");
+		}
+	}
+    
+    //When application has been destroyed, the socket if connected will close
+    //and the task running in the background will be terminated if running
+    @Override
+    protected void onDestroy()
+	{
+		super.onDestroy();
+		appInForeground = false;
+		if (socket.isConnected())
+		{
+			try 
+			{
+				//Closing connection to socket
+				socket.close();
+				Log.d(tag, "Socket Closed - onStop");
+			} 
+			catch(IOException e) 
+			{
+				e.printStackTrace();
+			}
+			catch(NullPointerException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		//Terminating task running in the background thread
+		if (openSocketTask.getStatus() == AsyncTask.Status.RUNNING || 
+				openSocketTask.getStatus() == AsyncTask.Status.PENDING)
+		{
+			openSocketTask.cancel(true);
+			Log.d(tag, "Task killed - onStop");
 		}
 	}
     
@@ -489,20 +641,20 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 
 	// Determines the checksum of a given string and returns it
-	private String getChecksum(String s) 
-	{
-		int decSum = 0;
-		for (int i = 0; i < s.length(); i++)
+		private String getChecksum(String s) 
 		{
-			decSum += (int)s.charAt(i);
+			int decSum = 0;
+			for (int i = 0; i < s.length(); i++)
+			{
+				decSum += (int)s.charAt(i);
+			}
+			// If checksum contains a letter, that letter must be upper case
+			// Checksums with more than 2 chars are truncated to 2 characters
+			//
+			// TODO: verify checksum process with international letters?
+			// http://mattryall.net/blog/2009/02/the-infamous-turkish-locale-bug
+			String hexSum = Integer.toHexString(decSum).toUpperCase(Locale.ENGLISH);
+			return hexSum.substring(hexSum.length() - 2, hexSum.length());
 		}
-		// If checksum contains a letter, that letter must be upper case
-		// Checksums with more than 2 chars are truncated
-		//
-		// TODO: verify checksum process with international letters?
-		// http://mattryall.net/blog/2009/02/the-infamous-turkish-locale-bug
-		String hexSum = Integer.toHexString(decSum).toUpperCase(Locale.ENGLISH);
-		return hexSum.substring(hexSum.length() - 2, hexSum.length());
-	}
 }
 
