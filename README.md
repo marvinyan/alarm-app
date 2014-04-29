@@ -1,6 +1,6 @@
 MyAlarm
 =========
-![Alt text](http://i.imgur.com/xL75g2T.png)
+![app screenshot](http://i.imgur.com/KuGAhdi.png)
 
 This app allows you to interface with a DSC alarm panel from an Android device.
 

@@ -300,20 +300,21 @@
     
     <ScrollView
         android:id="@+id/scroll"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/zone8"
         android:layout_alignParentBottom="true"
-        android:layout_alignTop="@id/armStay"
-        android:layout_toRightOf="@id/armStay"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/zone8"
         android:fillViewport="true" >
-        
-	    <TextView
-	        android:id="@+id/log"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:text="@string/appLog"/>
+
+        <TextView
+            android:id="@+id/log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/appLog" />
     </ScrollView>
-    
+
     <Button
         android:id="@+id/setup"
         android:layout_height="wrap_content"
@@ -321,6 +322,5 @@
         android:layout_marginLeft="450dp"
         android:layout_marginTop="10dp"
         android:text="@string/setup"/>
-    
-
+        
 </RelativeLayout>
